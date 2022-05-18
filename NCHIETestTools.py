@@ -1,11 +1,13 @@
 from asyncio.windows_events import NULL
+import imp
 from time import sleep
 from attr import NOTHING
 from selenium import webdriver
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
+#from selenium.webdriver.common.by import By
+#from selenium.webdriver.support.ui import WebDriverWait
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support.ui import Select
 
 class NCHIETestTools:
     driver = 0
@@ -87,3 +89,25 @@ class NCHIETestTools:
             print ("!* Search button found")
         else:
             print ("!* Search button not found")
+
+    def openPatient(self):
+        search_result_link = driver.find_element_by_xpath("//*[text()[contains(.,'Chdrzztest, Chdrseven')]]")
+        if search_result_link is not None:
+            search_result_link.click()
+            print ("!* Search result found")
+        else:
+            print ("!* Search result not found")
+
+        select_reason_dropdown = Select(driver.find_element_by_id("selBTGReason"))
+        if select_reason_dropdown is not None:
+            select_reason_dropdown.select_by_value(4)
+            print ("!* BTG reason select found")
+        else:
+            print ("!* BTG reason select not found")
+
+        declare_button = driver.find_element_by_id("btnBTGDeclare")
+        if declare_button is not None:
+            declare_button.click()
+            print ("!* Declare button found")
+        else:
+            print ("!* Declare button not found")
