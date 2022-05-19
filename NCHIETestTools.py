@@ -1,13 +1,11 @@
-from asyncio.windows_events import NULL
-import imp
 from time import sleep
 from attr import NOTHING
 from selenium import webdriver
-#from selenium.webdriver.common.by import By
-#from selenium.webdriver.support.ui import WebDriverWait
 from webdriver_manager.chrome import ChromeDriverManager
-from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support import expected_conditions as ExpectedConditions
 from selenium.webdriver.support.ui import Select
+from selenium.webdriver.support.wait import WebDriverWait
+from selenium.webdriver.common.by import By
 
 class NCHIETestTools:
     driver = 0
@@ -39,17 +37,15 @@ class NCHIETestTools:
 
         logged_on = False
 
-        try:
-            element = WebDriverWait(driver, 5).until (
-                EC.presence_of_element_located((By.ID, "DisclaimerModal"))
-            )
-            if element is None:
-                print ("!* Disclaimer dialog NOT found")
-            else:
-                print ("!* Disclaimer dialog found")
-                logged_on = True
-        except:
-            print ("!* Disclaimer not found, timeout")
+        disclaimer_modal = WebDriverWait(driver, 5).until (
+            ExpectedConditions.presence_of_element_located((By.ID, "DisclaimerModal"))
+        )
+
+        if disclaimer_modal is None:
+            print ("!* Disclaimer dialog NOT found")
+        else:
+            print ("!* Disclaimer dialog found")
+            logged_on = True
 
         if logged_on == False:
             driver.quit
@@ -77,11 +73,23 @@ class NCHIETestTools:
         LASTNAME = "CHDR"
         FIRSTNAME = "CHDR"
 
-        last_name_field = driver.find_element_by_id("HSPatient_Find_0-item-LastName")
-        last_name_field.send_keys(LASTNAME)
+        last_name_field = WebDriverWait(driver, 5).until (
+            ExpectedConditions.presence_of_element_located((By.ID, "HSPatient_Find_0-item-LastName"))
+        )
+
+        if last_name_field is not None:
+            last_name_field.send_keys(LASTNAME)
+            print ("!* Last Name field found")
+        else:
+            print ("!* Last Name field not found")
 
         first_name_field = driver.find_element_by_id("HSPatient_Find_0-item-FirstName")
-        first_name_field.send_keys(FIRSTNAME)
+
+        if first_name_field is not None:
+            first_name_field.send_keys(FIRSTNAME)
+            print ("!* First Name field found")
+        else:
+            print ("!* First Name field not found")
 
         search_button = driver.find_element_by_id("HSPatient_Find_0-button-Search_clone")
         if search_button is not None:
@@ -91,16 +99,22 @@ class NCHIETestTools:
             print ("!* Search button not found")
 
     def openPatient(self):
-        search_result_link = driver.find_element_by_xpath("//*[text()[contains(.,'Chdrzztest, Chdrseven')]]")
-        if search_result_link is not None:
-            search_result_link.click()
-            print ("!* Search result found")
-        else:
-            print ("!* Search result not found")
+        search_result_link = WebDriverWait(driver, 5).until (
+            ExpectedConditions.presence_of_element_located((By.ID, "HSPatient_List_0-row-2-item-NameListUser-link"))
+        )
 
-        select_reason_dropdown = Select(driver.find_element_by_id("selBTGReason"))
+        if search_result_link is None:
+            print ("!* Search result NOT found")
+        else:
+            print ("!* Search result found")
+            search_result_link.click()
+
+        select_reason_dropdown = Select(WebDriverWait(driver, 5).until (
+            ExpectedConditions.presence_of_element_located((By.ID, "selBTGReason")))
+        )
+
         if select_reason_dropdown is not None:
-            select_reason_dropdown.select_by_value(4)
+            select_reason_dropdown.select_by_value('privacyaudit')
             print ("!* BTG reason select found")
         else:
             print ("!* BTG reason select not found")
@@ -111,3 +125,12 @@ class NCHIETestTools:
             print ("!* Declare button found")
         else:
             print ("!* Declare button not found")
+
+        allergies_field = WebDriverWait(driver, 30).until (
+            ExpectedConditions.presence_of_element_located((By.ID, "PAAllergy_ListEMR_0-header-caption"))
+        )
+
+        if allergies_field is not None:
+            print ("!* Allergies field found")
+        else:
+            print ("!* Alergies field not found")
